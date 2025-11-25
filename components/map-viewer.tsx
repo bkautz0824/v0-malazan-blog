@@ -1,9 +1,11 @@
-'use client'
+"use client"
 
-import { useEffect, useRef, useState, useCallback } from 'react'
-import { MapData, Location, Journey } from '@/lib/types'
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import type React from "react"
+
+import { useEffect, useRef, useState, useCallback } from "react"
+import type { MapData, Location, Journey } from "@/lib/types"
+import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface MapViewerProps {
   mapData: MapData
@@ -17,12 +19,17 @@ export function MapViewer({ mapData }: MapViewerProps) {
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [hoveredItem, setHoveredItem] = useState<{ type: 'location' | 'journey', data: Location | Journey, x: number, y: number } | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<{
+    type: "location" | "journey"
+    data: Location | Journey
+    x: number
+    y: number
+  } | null>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
 
   const drawMap = useCallback(() => {
     const canvas = canvasRef.current
-    const ctx = canvas?.getContext('2d')
+    const ctx = canvas?.getContext("2d")
     const image = imageRef.current
 
     if (!canvas || !ctx || !image || !imageLoaded) return
@@ -33,7 +40,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
 
     // Clear canvas
-    ctx.fillStyle = '#0f172a'
+    ctx.fillStyle = "#0f172a"
     ctx.fillRect(0, 0, rect.width, rect.height)
 
     // Calculate scaled dimensions
@@ -45,7 +52,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
 
     // Draw background image
     ctx.save()
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
+    ctx.shadowColor = "rgba(0, 0, 0, 0.5)"
     ctx.shadowBlur = 20
     ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight)
     ctx.restore()
@@ -57,7 +64,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
       return { x, y }
     }
 
-    // Draw journey paths first (behind markers)
+    // Draw journey paths with improved contrast
     if (mapData.journeys) {
       mapData.journeys.forEach((journey) => {
         ctx.beginPath()
@@ -69,88 +76,143 @@ export function MapViewer({ mapData }: MapViewerProps) {
             ctx.lineTo(pos.x, pos.y)
           }
         })
-        
+
+        // Dark outline for contrast
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
+        ctx.lineWidth = 8
+        ctx.lineCap = "round"
+        ctx.lineJoin = "round"
+        ctx.stroke()
+
+        // Main colored line
+        ctx.beginPath()
+        journey.path.forEach((coord, idx) => {
+          const pos = mapToCanvas(coord)
+          if (idx === 0) {
+            ctx.moveTo(pos.x, pos.y)
+          } else {
+            ctx.lineTo(pos.x, pos.y)
+          }
+        })
+
         ctx.strokeStyle = journey.color
-        ctx.lineWidth = 4
-        ctx.lineCap = 'round'
-        ctx.lineJoin = 'round'
-        ctx.setLineDash([10, 10])
+        ctx.lineWidth = 5
+        ctx.lineCap = "round"
+        ctx.lineJoin = "round"
+        ctx.setLineDash([12, 6])
         ctx.shadowColor = journey.color
-        ctx.shadowBlur = 8
+        ctx.shadowBlur = 12
         ctx.stroke()
         ctx.setLineDash([])
         ctx.shadowBlur = 0
 
-        // Draw arrow at end of path
-        if (journey.path.length > 1) {
-          const lastPos = mapToCanvas(journey.path[journey.path.length - 1])
-          const secondLastPos = mapToCanvas(journey.path[journey.path.length - 2])
-          const angle = Math.atan2(lastPos.y - secondLastPos.y, lastPos.x - secondLastPos.x)
-          
-          ctx.save()
-          ctx.translate(lastPos.x, lastPos.y)
-          ctx.rotate(angle)
-          ctx.fillStyle = journey.color
+        journey.path.forEach((coord, idx) => {
+          const pos = mapToCanvas(coord)
+          const isStart = idx === 0
+          const isEnd = idx === journey.path.length - 1
+
           ctx.beginPath()
-          ctx.moveTo(0, 0)
-          ctx.lineTo(-12, -6)
-          ctx.lineTo(-12, 6)
-          ctx.closePath()
-          ctx.fill()
-          ctx.restore()
-        }
+          if (isStart) {
+            // Start marker - circle
+            ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2)
+            ctx.fillStyle = journey.color
+            ctx.fill()
+            ctx.strokeStyle = "#ffffff"
+            ctx.lineWidth = 2
+            ctx.stroke()
+          } else if (isEnd) {
+            // End marker - arrow
+            const prevPos = mapToCanvas(journey.path[idx - 1])
+            const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x)
+
+            ctx.save()
+            ctx.translate(pos.x, pos.y)
+            ctx.rotate(angle)
+            ctx.fillStyle = journey.color
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.lineTo(-16, -8)
+            ctx.lineTo(-16, 8)
+            ctx.closePath()
+            ctx.fill()
+            ctx.strokeStyle = "#ffffff"
+            ctx.lineWidth = 2
+            ctx.stroke()
+            ctx.restore()
+          } else {
+            // Waypoint - small dot
+            ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2)
+            ctx.fillStyle = journey.color
+            ctx.fill()
+          }
+        })
       })
     }
 
     // Draw location markers
     if (mapData.locations) {
       const markerColors: Record<string, string> = {
-        city: '#3b82f6',
-        fortress: '#dc2626',
-        landmark: '#8b5cf6',
-        battlefield: '#f59e0b'
+        city: "#3b82f6",
+        fortress: "#dc2626",
+        landmark: "#8b5cf6",
+        battlefield: "#f59e0b",
       }
 
       mapData.locations.forEach((location) => {
         const pos = mapToCanvas(location.coordinates)
-        const color = markerColors[location.type] || '#64748b'
-        const isHovered = hoveredItem?.type === 'location' && hoveredItem.data === location
+        const color = markerColors[location.type] || "#64748b"
+        const isHovered = hoveredItem?.type === "location" && hoveredItem.data === location
 
         // Draw marker with glow effect
         ctx.beginPath()
-        ctx.arc(pos.x, pos.y, isHovered ? 12 : 10, 0, Math.PI * 2)
+        ctx.arc(pos.x, pos.y, isHovered ? 14 : 12, 0, Math.PI * 2)
         ctx.fillStyle = color
         ctx.shadowColor = color
-        ctx.shadowBlur = isHovered ? 20 : 10
+        ctx.shadowBlur = isHovered ? 25 : 15
         ctx.fill()
-        
+
         // White border
-        ctx.strokeStyle = '#ffffff'
+        ctx.strokeStyle = "#ffffff"
         ctx.lineWidth = 3
         ctx.stroke()
         ctx.shadowBlur = 0
 
-        // Draw location name
-        ctx.fillStyle = '#f1f5f9'
-        ctx.font = 'bold 12px system-ui'
-        ctx.textAlign = 'center'
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
-        ctx.shadowBlur = 4
-        ctx.fillText(location.name, pos.x, pos.y - 18)
-        ctx.shadowBlur = 0
+        // Draw location name with background for readability
+        const textMetrics = ctx.measureText(location.name)
+        const textWidth = textMetrics.width
+        const textHeight = 14
+        const padding = 4
+
+        // Text background
+        ctx.fillStyle = "rgba(15, 23, 42, 0.85)"
+        ctx.fillRect(
+          pos.x - textWidth / 2 - padding,
+          pos.y - 32 - textHeight / 2 - padding,
+          textWidth + padding * 2,
+          textHeight + padding * 2,
+        )
+
+        // Text
+        ctx.fillStyle = "#f1f5f9"
+        ctx.font = "bold 12px system-ui"
+        ctx.textAlign = "center"
+        ctx.fillText(location.name, pos.x, pos.y - 28)
       })
     }
   }, [mapData, imageLoaded, zoom, pan, hoveredItem])
 
+  // ... existing code for useEffect, mouse handlers, etc. ...
+
   // Load image
   useEffect(() => {
     const img = new Image()
+    img.crossOrigin = "anonymous"
     img.onload = () => {
       imageRef.current = img
       setImageLoaded(true)
     }
     img.src = mapData.imageUrl
-    
+
     return () => {
       imageRef.current = null
       setImageLoaded(false)
@@ -174,7 +236,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
     if (isDragging) {
       setPan({
         x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
+        y: e.clientY - dragStart.y,
       })
     } else {
       // Check hover on locations
@@ -199,9 +261,9 @@ export function MapViewer({ mapData }: MapViewerProps) {
           const posX = offsetX + (location.coordinates[1] / 1000) * scaledWidth
           const posY = offsetY + (location.coordinates[0] / 1000) * scaledHeight
           const distance = Math.sqrt((mouseX - posX) ** 2 + (mouseY - posY) ** 2)
-          
-          if (distance < 15) {
-            setHoveredItem({ type: 'location', data: location, x: e.clientX, y: e.clientY })
+
+          if (distance < 18) {
+            setHoveredItem({ type: "location", data: location, x: e.clientX, y: e.clientY })
             foundHover = true
             break
           }
@@ -221,18 +283,21 @@ export function MapViewer({ mapData }: MapViewerProps) {
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     e.preventDefault()
     const delta = e.deltaY > 0 ? 0.9 : 1.1
-    setZoom(prev => Math.max(0.5, Math.min(3, prev * delta)))
+    setZoom((prev) => Math.max(0.5, Math.min(3, prev * delta)))
   }
 
-  const handleZoomIn = () => setZoom(prev => Math.min(3, prev * 1.2))
-  const handleZoomOut = () => setZoom(prev => Math.max(0.5, prev / 1.2))
+  const handleZoomIn = () => setZoom((prev) => Math.min(3, prev * 1.2))
+  const handleZoomOut = () => setZoom((prev) => Math.max(0.5, prev / 1.2))
   const handleReset = () => {
     setZoom(1)
     setPan({ x: 0, y: 0 })
   }
 
   return (
-    <div ref={containerRef} className="relative h-full w-full rounded-lg overflow-hidden border border-slate-700 bg-slate-950">
+    <div
+      ref={containerRef}
+      className="relative h-full w-full rounded-lg overflow-hidden border border-slate-700 bg-slate-950"
+    >
       <canvas
         ref={canvasRef}
         onMouseDown={handleMouseDown}
@@ -241,9 +306,9 @@ export function MapViewer({ mapData }: MapViewerProps) {
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
         className="h-full w-full cursor-grab active:cursor-grabbing"
-        style={{ minHeight: '600px' }}
+        style={{ minHeight: "600px" }}
       />
-      
+
       {/* Zoom controls */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-2">
         <Button size="icon" variant="secondary" onClick={handleZoomIn}>
@@ -258,25 +323,19 @@ export function MapViewer({ mapData }: MapViewerProps) {
       </div>
 
       {/* Tooltip */}
-      {hoveredItem && hoveredItem.type === 'location' && (
-        <div 
-          className="absolute pointer-events-none z-50 bg-slate-900 border border-slate-700 rounded-lg p-3 shadow-xl max-w-xs"
+      {hoveredItem && hoveredItem.type === "location" && (
+        <div
+          className="absolute pointer-events-none z-50 bg-slate-900 border border-slate-600 rounded-lg p-4 shadow-xl max-w-sm"
           style={{
-            left: `${hoveredItem.x + 10}px`,
-            top: `${hoveredItem.y + 10}px`,
-            transform: 'translate(-50%, -100%)'
+            left: `${Math.min(hoveredItem.x + 15, window.innerWidth - 320)}px`,
+            top: `${hoveredItem.y - 10}px`,
+            transform: "translateY(-100%)",
           }}
         >
-          <h3 className="font-semibold text-foreground mb-1">
-            {(hoveredItem.data as Location).name}
-          </h3>
-          <p className="text-xs text-muted-foreground capitalize mb-2">
-            {(hoveredItem.data as Location).type}
-          </p>
+          <h3 className="font-serif font-bold text-foreground mb-1 text-lg">{(hoveredItem.data as Location).name}</h3>
+          <p className="text-xs text-accent uppercase tracking-wide mb-2">{(hoveredItem.data as Location).type}</p>
           {(hoveredItem.data as Location).description && (
-            <p className="text-sm text-slate-300">
-              {(hoveredItem.data as Location).description}
-            </p>
+            <p className="text-sm text-slate-300 leading-relaxed">{(hoveredItem.data as Location).description}</p>
           )}
         </div>
       )}

@@ -3,7 +3,7 @@ export interface Character {
   name: string
   race: string
   rank?: string
-  status: 'alive' | 'dead' | 'ascended' | 'unknown'
+  status: "alive" | "dead" | "ascended" | "unknown" | "undead"
   deathBook?: string
   deathLocation?: string
   affiliations: string[]
@@ -43,7 +43,7 @@ export interface MapLocation {
   name: string
   coordinates: [number, number]
   description?: string
-  type: 'city' | 'fortress' | 'landmark' | 'battlefield'
+  type: "city" | "fortress" | "landmark" | "battlefield"
 }
 
 export type Location = MapLocation
@@ -53,14 +53,16 @@ export interface Journey {
   path: [number, number][]
   color: string
   description?: string
+  summary?: string
 }
 
 export const BOOK_CODES = {
-  GOTM: 'Gardens of the Moon',
-  DG: 'Deadhouse Gates',
-  MOI: 'Memories of Ice',
-  HOC: 'House of Chains',
-  MT: 'Midnight Tides',
+  GOTM: "Gardens of the Moon",
+  DG: "Deadhouse Gates",
+  MOI: "Memories of Ice",
+  HOC: "House of Chains",
+  MT: "Midnight Tides",
+  BH: "The Bonehunters",
 } as const
 
 export type BookCode = keyof typeof BOOK_CODES
