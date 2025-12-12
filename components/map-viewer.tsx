@@ -64,9 +64,10 @@ export function MapViewer({ mapData }: MapViewerProps) {
       return { x, y }
     }
 
-    // Draw journey paths with improved contrast
+    // Draw journey paths with improved contrast and sleeker lines
     if (mapData.journeys) {
       mapData.journeys.forEach((journey) => {
+        // Draw dark outline for contrast
         ctx.beginPath()
         journey.path.forEach((coord, idx) => {
           const pos = mapToCanvas(coord)
@@ -76,15 +77,13 @@ export function MapViewer({ mapData }: MapViewerProps) {
             ctx.lineTo(pos.x, pos.y)
           }
         })
-
-        // Dark outline for contrast
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.8)"
-        ctx.lineWidth = 8
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.7)"
+        ctx.lineWidth = 6
         ctx.lineCap = "round"
         ctx.lineJoin = "round"
         ctx.stroke()
 
-        // Main colored line
+        // Draw main colored line
         ctx.beginPath()
         journey.path.forEach((coord, idx) => {
           const pos = mapToCanvas(coord)
@@ -96,32 +95,33 @@ export function MapViewer({ mapData }: MapViewerProps) {
         })
 
         ctx.strokeStyle = journey.color
-        ctx.lineWidth = 5
+        ctx.lineWidth = 3
         ctx.lineCap = "round"
         ctx.lineJoin = "round"
-        ctx.setLineDash([12, 6])
+        ctx.setLineDash([8, 4])
         ctx.shadowColor = journey.color
-        ctx.shadowBlur = 12
+        ctx.shadowBlur = 8
         ctx.stroke()
         ctx.setLineDash([])
         ctx.shadowBlur = 0
 
+        // Draw waypoint markers - smaller and sleeker
         journey.path.forEach((coord, idx) => {
           const pos = mapToCanvas(coord)
           const isStart = idx === 0
           const isEnd = idx === journey.path.length - 1
 
-          ctx.beginPath()
           if (isStart) {
-            // Start marker - circle
-            ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2)
+            // Start marker - small filled circle
+            ctx.beginPath()
+            ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2)
             ctx.fillStyle = journey.color
             ctx.fill()
             ctx.strokeStyle = "#ffffff"
-            ctx.lineWidth = 2
+            ctx.lineWidth = 1.5
             ctx.stroke()
           } else if (isEnd) {
-            // End marker - arrow
+            // End marker - small arrow
             const prevPos = mapToCanvas(journey.path[idx - 1])
             const angle = Math.atan2(pos.y - prevPos.y, pos.x - prevPos.x)
 
@@ -131,17 +131,18 @@ export function MapViewer({ mapData }: MapViewerProps) {
             ctx.fillStyle = journey.color
             ctx.beginPath()
             ctx.moveTo(0, 0)
-            ctx.lineTo(-16, -8)
-            ctx.lineTo(-16, 8)
+            ctx.lineTo(-10, -5)
+            ctx.lineTo(-10, 5)
             ctx.closePath()
             ctx.fill()
             ctx.strokeStyle = "#ffffff"
-            ctx.lineWidth = 2
+            ctx.lineWidth = 1
             ctx.stroke()
             ctx.restore()
           } else {
-            // Waypoint - small dot
-            ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2)
+            // Waypoint - tiny dot
+            ctx.beginPath()
+            ctx.arc(pos.x, pos.y, 2, 0, Math.PI * 2)
             ctx.fillStyle = journey.color
             ctx.fill()
           }
@@ -149,7 +150,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
       })
     }
 
-    // Draw location markers
+    // Draw location markers - sleeker design
     if (mapData.locations) {
       const markerColors: Record<string, string> = {
         city: "#3b82f6",
@@ -158,50 +159,88 @@ export function MapViewer({ mapData }: MapViewerProps) {
         battlefield: "#f59e0b",
       }
 
+      const markerIcons: Record<string, (ctx: CanvasRenderingContext2D, x: number, y: number, size: number) => void> = {
+        city: (ctx, x, y, size) => {
+          // Circle for cities
+          ctx.beginPath()
+          ctx.arc(x, y, size, 0, Math.PI * 2)
+          ctx.fill()
+          ctx.stroke()
+        },
+        fortress: (ctx, x, y, size) => {
+          // Square for fortresses
+          ctx.beginPath()
+          ctx.rect(x - size, y - size, size * 2, size * 2)
+          ctx.fill()
+          ctx.stroke()
+        },
+        landmark: (ctx, x, y, size) => {
+          // Diamond for landmarks
+          ctx.beginPath()
+          ctx.moveTo(x, y - size)
+          ctx.lineTo(x + size, y)
+          ctx.lineTo(x, y + size)
+          ctx.lineTo(x - size, y)
+          ctx.closePath()
+          ctx.fill()
+          ctx.stroke()
+        },
+        battlefield: (ctx, x, y, size) => {
+          // X for battlefields
+          ctx.beginPath()
+          ctx.moveTo(x - size, y - size)
+          ctx.lineTo(x + size, y + size)
+          ctx.moveTo(x + size, y - size)
+          ctx.lineTo(x - size, y + size)
+          ctx.lineWidth = 3
+          ctx.stroke()
+          // Small circle in center
+          ctx.beginPath()
+          ctx.arc(x, y, size * 0.4, 0, Math.PI * 2)
+          ctx.fill()
+        },
+      }
+
       mapData.locations.forEach((location) => {
         const pos = mapToCanvas(location.coordinates)
         const color = markerColors[location.type] || "#64748b"
         const isHovered = hoveredItem?.type === "location" && hoveredItem.data === location
+        const size = isHovered ? 8 : 6
 
         // Draw marker with glow effect
-        ctx.beginPath()
-        ctx.arc(pos.x, pos.y, isHovered ? 14 : 12, 0, Math.PI * 2)
         ctx.fillStyle = color
-        ctx.shadowColor = color
-        ctx.shadowBlur = isHovered ? 25 : 15
-        ctx.fill()
-
-        // White border
         ctx.strokeStyle = "#ffffff"
-        ctx.lineWidth = 3
-        ctx.stroke()
+        ctx.lineWidth = 2
+        ctx.shadowColor = color
+        ctx.shadowBlur = isHovered ? 15 : 8
+
+        const drawIcon = markerIcons[location.type] || markerIcons.city
+        drawIcon(ctx, pos.x, pos.y, size)
+
         ctx.shadowBlur = 0
 
-        // Draw location name with background for readability
+        // Draw location name with background
+        ctx.font = "bold 11px system-ui"
         const textMetrics = ctx.measureText(location.name)
         const textWidth = textMetrics.width
-        const textHeight = 14
-        const padding = 4
+        const padding = 3
 
         // Text background
-        ctx.fillStyle = "rgba(15, 23, 42, 0.85)"
-        ctx.fillRect(
-          pos.x - textWidth / 2 - padding,
-          pos.y - 32 - textHeight / 2 - padding,
-          textWidth + padding * 2,
-          textHeight + padding * 2,
-        )
+        ctx.fillStyle = "rgba(15, 23, 42, 0.9)"
+        ctx.fillRect(pos.x - textWidth / 2 - padding, pos.y - 24 - padding, textWidth + padding * 2, 14 + padding * 2)
+
+        // Border
+        ctx.strokeStyle = "rgba(100, 116, 139, 0.5)"
+        ctx.lineWidth = 1
+        ctx.strokeRect(pos.x - textWidth / 2 - padding, pos.y - 24 - padding, textWidth + padding * 2, 14 + padding * 2)
 
         // Text
         ctx.fillStyle = "#f1f5f9"
-        ctx.font = "bold 12px system-ui"
         ctx.textAlign = "center"
-        ctx.fillText(location.name, pos.x, pos.y - 28)
+        ctx.fillText(location.name, pos.x, pos.y - 14)
       })
     }
   }, [mapData, imageLoaded, zoom, pan, hoveredItem])
-
-  // ... existing code for useEffect, mouse handlers, etc. ...
 
   // Load image
   useEffect(() => {
@@ -210,6 +249,9 @@ export function MapViewer({ mapData }: MapViewerProps) {
     img.onload = () => {
       imageRef.current = img
       setImageLoaded(true)
+    }
+    img.onerror = () => {
+      console.error("[v0] Failed to load map image:", mapData.imageUrl)
     }
     img.src = mapData.imageUrl
 
@@ -226,7 +268,14 @@ export function MapViewer({ mapData }: MapViewerProps) {
     drawMap()
   }, [drawMap])
 
-  // Mouse handlers for pan and zoom
+  // Resize handler
+  useEffect(() => {
+    const handleResize = () => drawMap()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [drawMap])
+
+  // Mouse handlers
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDragging(true)
     setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
@@ -262,7 +311,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
           const posY = offsetY + (location.coordinates[0] / 1000) * scaledHeight
           const distance = Math.sqrt((mouseX - posX) ** 2 + (mouseY - posY) ** 2)
 
-          if (distance < 18) {
+          if (distance < 15) {
             setHoveredItem({ type: "location", data: location, x: e.clientX, y: e.clientY })
             foundHover = true
             break
@@ -311,13 +360,13 @@ export function MapViewer({ mapData }: MapViewerProps) {
 
       {/* Zoom controls */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-2">
-        <Button size="icon" variant="secondary" onClick={handleZoomIn}>
+        <Button size="icon" variant="secondary" onClick={handleZoomIn} className="h-8 w-8">
           <ZoomIn className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="secondary" onClick={handleZoomOut}>
+        <Button size="icon" variant="secondary" onClick={handleZoomOut} className="h-8 w-8">
           <ZoomOut className="h-4 w-4" />
         </Button>
-        <Button size="icon" variant="secondary" onClick={handleReset}>
+        <Button size="icon" variant="secondary" onClick={handleReset} className="h-8 w-8">
           <Maximize2 className="h-4 w-4" />
         </Button>
       </div>
@@ -325,7 +374,7 @@ export function MapViewer({ mapData }: MapViewerProps) {
       {/* Tooltip */}
       {hoveredItem && hoveredItem.type === "location" && (
         <div
-          className="absolute pointer-events-none z-50 bg-slate-900 border border-slate-600 rounded-lg p-4 shadow-xl max-w-sm"
+          className="absolute pointer-events-none z-50 bg-slate-900/95 border border-slate-600 rounded-lg p-4 shadow-xl max-w-sm backdrop-blur-sm"
           style={{
             left: `${Math.min(hoveredItem.x + 15, window.innerWidth - 320)}px`,
             top: `${hoveredItem.y - 10}px`,

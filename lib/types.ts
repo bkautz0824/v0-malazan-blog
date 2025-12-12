@@ -7,6 +7,7 @@ export interface Character {
   deathBook?: string
   deathLocation?: string
   affiliations: string[]
+  primaryGroup?: string
   books: string[]
   description: string
   notable?: string
