@@ -373,4 +373,82 @@ export const groups: Group[] = [
     color: "#78716c",
     books: ["BH"],
   },
+
+  // ==================== RG GROUPS ====================
+  {
+    id: "rg-letherii",
+    name: "The Letherii",
+    description: "Citizens of the corrupted empire under Edur occupation",
+    color: "#eab308",
+    books: ["RG"],
+    timeline: [
+      { book: "RG", event: "Tehol and Bugg's economic revolution", location: "Letheras" },
+      { book: "RG", event: "Janath tortured by Karos Invictad", location: "Letheras" },
+      { book: "RG", event: "Tehol becomes King of Lether", location: "Letheras" },
+    ],
+  },
+  {
+    id: "rg-tiste-edur",
+    name: "The Tiste Edur",
+    description: "The grey-skinned conquerors losing their grip on power",
+    color: "#64748b",
+    books: ["RG"],
+    timeline: [
+      { book: "RG", event: "Rhulad's madness deepens", location: "Letheras Palace" },
+      { book: "RG", event: "Hannan Mosag's plots unravel", location: "Letheras" },
+      { book: "RG", event: "Rhulad finally released from the sword", location: "Letheras" },
+    ],
+  },
+  {
+    id: "rg-fleet-arrivals",
+    name: "Arriving with the Edur Fleet",
+    description: "Warriors and wanderers returning to Lether",
+    color: "#3b82f6",
+    books: ["RG"],
+  },
+  {
+    id: "rg-awldan",
+    name: "The Awl'dan",
+    description: "The plains people under siege by Letherii expansion",
+    color: "#a16207",
+    books: ["RG"],
+    timeline: [
+      { book: "RG", event: "Redmask returns to lead the Awl", location: "Awl'dan Plains" },
+      { book: "RG", event: "Battles against Letherii expansion", location: "Awl'dan" },
+      { book: "RG", event: "Redmask's betrayal and defeat", location: "Bast Fulmar" },
+    ],
+  },
+  {
+    id: "rg-hunted",
+    name: "The Hunted",
+    description: "Fugitives fleeing Lether and seeking answers",
+    color: "#059669",
+    books: ["RG"],
+  },
+  {
+    id: "rg-refugium",
+    name: "The Refugium",
+    description: "Sanctuary of the living Imass",
+    color: "#78716c",
+    books: ["RG"],
+  },
+  {
+    id: "rg-bonehunters",
+    name: "The Bonehunters",
+    description: "The Fourteenth Army arrives to confront the Crippled God's champion",
+    color: "#8b4513",
+    books: ["RG"],
+    timeline: [
+      { book: "RG", event: "Beak's sacrifice saves the army", location: "Letherii borderlands" },
+      { book: "RG", event: "Siege of Letheras begins", location: "Letheras" },
+      { book: "RG", event: "Icarium unleashed but stopped", location: "Letheras" },
+    ],
+  },
+  {
+    id: "rg-others",
+    name: "Others",
+    description: "Elder powers, ascendants, and wanderers",
+    color: "#9333ea",
+    books: ["RG"],
+  },
 ]

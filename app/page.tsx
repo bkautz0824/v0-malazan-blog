@@ -18,6 +18,7 @@ const BOOK_INFO: Record<BookCode, { title: string; subtitle: string; color: stri
   HOC: { title: "House of Chains", subtitle: "Book Four", color: "#dc2626" },
   MT: { title: "Midnight Tides", subtitle: "Book Five", color: "#64748b" },
   BH: { title: "The Bonehunters", subtitle: "Book Six", color: "#8b4513" },
+  RG: { title: "Reaper's Gale", subtitle: "Book Seven", color: "#059669" },
 }
 
 export default function Home() {
@@ -61,6 +62,7 @@ export default function Home() {
       HOC: [],
       MT: [],
       BH: [],
+      RG: [],
     }
 
     // Get groups for each book based on their ID prefix
@@ -71,6 +73,7 @@ export default function Home() {
       HOC: "hoc-",
       MT: "mt-",
       BH: "bh-",
+      RG: "rg-",
     }
 
     Object.entries(bookPrefixes).forEach(([book, prefix]) => {

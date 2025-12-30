@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Navigation } from "@/components/navigation"
-import { ChevronDown, ChevronRight, Flame, Droplets, Wind, Mountain, Skull, Moon, Sun, Eye } from "lucide-react"
+import { ChevronDown, ChevronRight, Flame, Droplets, Wind, Mountain, Skull, Moon, Sun, Eye, Zap } from "lucide-react"
 import { BOOK_CODES } from "@/lib/types"
 
 type WarrenType = "elder" | "warren" | "hold"
@@ -124,6 +124,30 @@ const warrens: Warren[] = [
         ],
       },
       { book: "BH", notes: ["Further connections between Thyrllan and the mortal warrens explored"] },
+    ],
+  },
+  {
+    id: "kurald-wyval",
+    name: "Kurald Wyval",
+    aspect: "Chaos",
+    type: "elder",
+    icon: Zap,
+    color: "#dc2626",
+    description:
+      "The Elder Warren of Chaos, home to the K'Chain Che'Malle. A realm of primal, destructive energy and transformation. Connected to the ancient Soletaken dragons.",
+    knownUsers: ["K'Chain Che'Malle", "Chaos-aspected Soletaken"],
+    bookNotes: [
+      {
+        book: "MOI",
+        notes: [
+          "K'Chain Che'Malle demonstrate connection to chaotic energies",
+          "The Warren's destructive nature revealed through K'Chain weapons",
+        ],
+      },
+      {
+        book: "BH",
+        notes: ["Further exploration of K'Chain Che'Malle magic", "Connections between Wyval and ancient dragon magic"],
+      },
     ],
   },
   {
