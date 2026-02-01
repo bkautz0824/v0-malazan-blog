@@ -1,6 +1,7 @@
 'use client'
 
-import { Character } from '@/lib/types'
+import type { Character } from '@/lib/types'
+import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Scroll, Skull, Sparkles } from 'lucide-react'
@@ -14,18 +15,20 @@ interface CharacterModalProps {
 export function CharacterModal({ character, open, onOpenChange }: CharacterModalProps) {
   if (!character) return null
 
-  const statusColors = {
+  const statusColors: Record<Character['status'], string> = {
     alive: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50',
     dead: 'bg-red-500/20 text-red-300 border-red-500/50',
     ascended: 'bg-purple-500/20 text-purple-300 border-purple-500/50',
-    unknown: 'bg-slate-500/20 text-slate-300 border-slate-500/50'
+    unknown: 'bg-slate-500/20 text-slate-300 border-slate-500/50',
+    undead: 'bg-amber-500/20 text-amber-300 border-amber-500/50'
   }
 
-  const statusIcons = {
+  const statusIcons: Record<Character['status'], React.ReactNode> = {
     alive: null,
     dead: <Skull className="w-4 h-4" />,
     ascended: <Sparkles className="w-4 h-4" />,
-    unknown: null
+    unknown: null,
+    undead: <Skull className="w-4 h-4" />
   }
 
   return (
