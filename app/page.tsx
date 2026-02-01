@@ -19,6 +19,8 @@ const BOOK_INFO: Record<BookCode, { title: string; subtitle: string; color: stri
   MT: { title: "Midnight Tides", subtitle: "Book Five", color: "#64748b" },
   BH: { title: "The Bonehunters", subtitle: "Book Six", color: "#8b4513" },
   RG: { title: "Reaper's Gale", subtitle: "Book Seven", color: "#059669" },
+  TTH: { title: "Toll the Hounds", subtitle: "Book Eight", color: "#1e293b" },
+  DOD: { title: "Dust of Dreams", subtitle: "Book Nine (Ch. 1-13)", color: "#78716c" },
 }
 
 export default function Home() {
@@ -74,6 +76,8 @@ export default function Home() {
       MT: "mt-",
       BH: "bh-",
       RG: "rg-",
+      TTH: "tth-",
+      DOD: "dod-",
     }
 
     Object.entries(bookPrefixes).forEach(([book, prefix]) => {

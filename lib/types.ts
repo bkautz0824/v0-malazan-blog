@@ -65,6 +65,8 @@ export const BOOK_CODES = {
   MT: "Midnight Tides",
   BH: "The Bonehunters",
   RG: "Reaper's Gale",
+  TTH: "Toll the Hounds",
+  DOD: "Dust of Dreams",
 } as const
 
 export type BookCode = keyof typeof BOOK_CODES

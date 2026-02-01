@@ -13,7 +13,7 @@ export default function FallenPage() {
     return characters
       .filter((char) => char.status === "dead")
       .sort((a, b) => {
-        const bookOrder = ["GOTM", "DG", "MOI", "HOC", "MT", "BH", "Ancient past"]
+        const bookOrder = ["GOTM", "DG", "MOI", "HOC", "MT", "BH", "RG", "TTH", "DOD", "Ancient past"]
         const aIndex = bookOrder.indexOf(a.deathBook || "Unknown")
         const bIndex = bookOrder.indexOf(b.deathBook || "Unknown")
         if (aIndex === -1 && bIndex === -1) return 0
@@ -60,7 +60,7 @@ export default function FallenPage() {
               In memory of those who fell in service, sacrifice, and struggle
             </p>
             <p className="text-sm text-red-400/70">
-              {fallenCharacters.length} characters have fallen across the first six books
+              {fallenCharacters.length} characters have fallen through Dust of Dreams (Chapter 13)
             </p>
           </header>
 
