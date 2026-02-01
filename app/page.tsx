@@ -65,6 +65,8 @@ export default function Home() {
       MT: [],
       BH: [],
       RG: [],
+      TTH: [],
+      DOD: [],
     }
 
     // Get groups for each book based on their ID prefix
